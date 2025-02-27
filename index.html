@@ -37,7 +37,7 @@
     .board {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-     5px;
+      gap: 5px;
       width: 100%;
       max-width: 300px;
     }
@@ -232,6 +232,8 @@
           cell.addEventListener('touchstart', (e) => handleTouchStart(e, row, col));
           cell.addEventListener('touchmove', (e) => handleTouchMove(e));
           cell.addEventListener('touchend', (e) => handleTouchEnd(e, row, col));
+          cell.dataset.row = row;
+          cell.dataset.col = col;
           if (selectedPiece && selectedPiece[0] === row && selectedPiece[1] === col) {
             cell.classList.add('selected');
           }
