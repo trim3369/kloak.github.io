@@ -49,7 +49,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px; /* ペグの表示の大きさを少し大きくしました */
+      font-size: 32px;
       background-color: #fff;
       transition: background-color 0.3s, transform 0.3s;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -114,7 +114,7 @@
         max-width: 90vw;
       }
       .cell {
-        font-size: 22px; /* ペグの表示の大きさを少し大きくしました */
+        font-size: 22px;
       }
       .move-choice button {
         padding: 8px 16px;
@@ -337,23 +337,23 @@
       updateInfo();
     };
 
-const updateInfo = (colorsToRemove = new Set()) => {
-  const info = document.getElementById('info');
-  const player1Info = document.getElementById('player1-colors');
-  const player2Info = document.getElementById('player2-colors');
-  let message = `現在のプレイヤー: ${currentPlayer === 1 ? '先攻' : '後攻'}`;
-  if (colorsToRemove.size > 0) {
-    message += `<br>消えた駒の色: ${Array.from(colorsToRemove).join(', ')}`;
-    if (currentPlayer === 1) {
-      colorsToRemove.forEach(color => player1Colors.add(color));
-    } else {
-      colorsToRemove.forEach(color => player2Colors.add(color));
-    }
-  }
-  player1Info.innerHTML = `消した色: ${Array.from(player1Colors).join(', ')}`;
-  player2Info.innerHTML = `消した色: ${Array.from(player2Colors).join(', ')}`;
-  info.innerHTML = message;
-};
+    const updateInfo = (colorsToRemove = new Set()) => {
+      const info = document.getElementById('info');
+      const player1Info = document.getElementById('player1-colors');
+      const player2Info = document.getElementById('player2-colors');
+      let message = `現在のプレイヤー: ${currentPlayer === 1 ? '先攻' : '後攻'}`;
+      if (colorsToRemove.size > 0) {
+        message += ` 消えた駒の色: ${Array.from(colorsToRemove).join(', ')}`;
+        if (currentPlayer === 1) {
+          colorsToRemove.forEach(color => player1Colors.add(color));
+        } else {
+          colorsToRemove.forEach(color => player2Colors.add(color));
+        }
+      }
+      player1Info.innerHTML = `消した色: ${Array.from(player1Colors).join(', ')}`;
+      player2Info.innerHTML = `消した色: ${Array.from(player2Colors).join(', ')}`;
+      info.innerHTML = message;
+    };
 
     const checkWinCondition = () => {
       if (player1Colors.size >= 2) {
