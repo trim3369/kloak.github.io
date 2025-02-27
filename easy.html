@@ -399,26 +399,11 @@
       initializeBoard();
     };
 
-const rotateBoard = () => {
-  rotation = (rotation + 90) % 360;
-  const gameBoard = document.getElementById('game-board');
-  gameBoard.style.transform = `rotate(${rotation}deg)`;
-
-  // 各駒の向きを逆回転させて常に上向きにする
-  const cells = document.querySelectorAll('.cell div');
-  cells.forEach(cell => {
-    cell.style.transform = `rotate(${-rotation}deg) translate(-50%, -50%)`;
-  });
-
-  // 駒の位置を再計算して正しい位置に配置し直す
-  const cellContainers = document.querySelectorAll('.cell');
-  cellContainers.forEach(cell => {
-    const rect = cell.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    cell.style.transformOrigin = `${centerX}px ${centerY}px`;
-  });
-};
+    const rotateBoard = () => {
+      rotation = (rotation + 90) % 360;
+      const gameBoard = document.getElementById('game-board');
+      gameBoard.style.transform = `rotate(${rotation}deg)`;
+    };
 
     document.getElementById('move-yes').addEventListener('click', () => {
       if (pendingMove) {
