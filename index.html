@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kloak Game</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .player-info {
+      font-size: 1.2rem;
+      margin: 10px;
+      text-align: center;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+     5px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .cell {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      background-color: #fff;
+      transition: background-color 0.3s, transform 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .cell div {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cell:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.1);
+    }
+    .selected {
+      background-color: yellow;
+    }
+    .move-choice {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: white;
+      border: 2px solid #333;
+      display: flex;
+      justify-content: space-around;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .move-choice button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      border-radius: 5px;
+    }
+    .move-choice #move-yes {
+      background-color: #28a745;
+      color: white;
+    }
+    .move-choice #move-yes:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+    .move-choice #move-no {
+      background-color: #dc3545;
+      color: white;
+    }
+    .move-choice #move-no:hover {
+      background-color: #c82333;
+      transform: scale(1.05);
+    }
+    .info {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .board {
+        max-width: 90vw;
+      }
+      .cell {
+        font-size: 22px;
+      }
+      .move-choice button {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .player-info {
+        font-size: 1rem;
+      }
+      .info {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="player1-info" class="player-info">
+    <h4>プレイヤー1</h4>
+    <div id="player1-colors"></div>
+  </div>
+  <div class="container">
+    <div id="game-board" class="board"></div>
+  </div>
+  <div id="player2-info" class="player-info">
+    <h4>プレイヤー2</h4>
+    <div id="player2-colors"></div>
+  </div>
+  <div id="move-choice" class="move-choice" style="display: none;">
+    <p>一緒に動かす？：</p>
+    <button id="move-yes">はい</button>
+    <button id="move-no">いいえ</button>
+  </div>
+  <div id="info" class="info"></div>
+  <script>
+    const BOARD_SIZE = 5;
+    const COLORS = ["🔴", "🔵", "🟢", "🟡", "🟣"];
+    const EMPTY_CELL = null;
+    const SHELL_ICON = "⬜";
+
+    let board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY_CELL));
+    let shells = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+    let selectedPiece = null;
+    let pendingMove = null;
+    let currentPlayer = 1;
+    let player1Colors = new Set();
+    let player2Colors = new Set();
+
+    const initializeBoard = () => {
+      let availablePositions = [];
+      for (let i = 1; i < 4; i++) {
+        for (let j = 0; j < BOARD_SIZE; j++) {
+          availablePositions.push([i, j]);
+        }
+      }
+      COLORS.forEach((color) => {
+        for (let i = 0; i < 3; i++) {
+          let placed = false;
+          while (!placed) {
+            const index = Math.floor(Math.random() * availablePositions.length);
+            const [row, col] = availablePositions[index];
+            if (isValidPlacement(board, row, col, color)) {
+              board[row][col] = color;
+              availablePositions.splice(index, 1);
+              placed = true;
+            }
+          }
+        }
+      });
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        shells[0][i] = SHELL_ICON;
+        shells[4][i] = SHELL_ICON;
+      }
+      document.getElementById('game-board').innerHTML = ''; // 追加
+      renderBoard();
+      updateInfo();
+    };
+
+    const isValidPlacement = (board, row, col, color) => {
+      // 横のチェック
+      if (col >= 2 && board[row][col - 1] === color && board[row][col - 2] === color) return false;
+      if (col <= BOARD_SIZE - 3 && board[row][col + 1] === color && board[row][col + 2] === color) return false;
+      if (col >= 1 && col <= BOARD_SIZE - 2 && board[row][col - 1] === color && board[row][col + 1] === color) return false;
+      // 縦のチェック
+      if (row >= 2 && board[row - 1][col] === color && board[row - 2][col] === color) return false;
+      if (row <= BOARD_SIZE - 3 && board[row + 1][col] === color && board[row + 2][col] === color) return false;
+      if (row >= 1 && row <= BOARD_SIZE - 2 && board[row - 1][col] === color && board[row + 1][col] === color) return false;
+      // 斜めチェック（右下）
+      if (row >= 2 && col >= 2 && board[row - 1][col - 1] === color && board[row - 2][col - 2] === color) return false;
+      if (row <= BOARD_SIZE - 3 && col <= BOARD_SIZE - 3 && board[row + 1][col + 1] === color && board[row + 2][col + 2] === color) return false;
+      if (row >= 1 && row <= BOARD_SIZE - 2 && col >= 1 && col <= BOARD_SIZE - 2 && board[row - 1][col - 1] === color && board[row + 1][col + 1] === color) return false;
+      // 斜めチェック（左下）
+      if (row >= 2 && col <= BOARD_SIZE - 3 && board[row - 1][col + 1] === color && board[row - 2][col + 2] === color) return false;
+      if (row <= BOARD_SIZE - 3 && col >= 2 && board[row + 1][col - 1] === color && board[row + 2][col - 2] === color) return false;
+      if (row >= 1 && row <= BOARD_SIZE - 2 && col >= 1 && col <= BOARD_SIZE - 2 && board[row - 1][col + 1] === color && board[row + 1][col - 1] === color) return false;
+      return true;
+    };
+
+    const renderBoard = () => {
+      const gameBoard = document.getElementById('game-board');
+      gameBoard.innerHTML = '';
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          const cellContent = document.createElement('div');
+          cellContent.innerText = shells[row][col] || board[row][col] || '';
+          cell.appendChild(cellContent);
+          cell.draggable = true;
+          cell.addEventListener('dragstart', (e) => handleDragStart(e, row, col));
+          cell.addEventListener('dragover', (e) => handleDragOver(e));
+          cell.addEventListener('drop', (e) => handleDrop(e, row, col));
+          cell.addEventListener('click', () => handleSelect(row, col));
+          cell.addEventListener('touchstart', (e) => handleTouchStart(e, row, col));
+          cell.addEventListener('touchmove', (e) => handleTouchMove(e));
+          cell.addEventListener('touchend', (e) => handleTouchEnd(e, row, col));
+          if (selectedPiece && selectedPiece[0] === row && selectedPiece[1] === col) {
+            cell.classList.add('selected');
+          }
+          gameBoard.appendChild(cell);
+        }
+      }
+    };
+
+    const handleDragStart = (e, row, col) => {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ row, col }));
+      selectedPiece = [row, col];
+    };
+
+    const handleDragOver = (e) => {
+      e.preventDefault();
+    };
+
+    const handleDrop = (e, row, col) => {
+      e.preventDefault();
+      const { row: fromRow, col: fromCol } = JSON.parse(e.dataTransfer.getData('text/plain'));
+      if (isValidMove(fromRow, fromCol, row, col)) {
+        if (shells[fromRow][fromCol]) {
+          if (shells[row][col] === null) {
+            if (board[fromRow][fromCol] !== EMPTY_CELL && board[row][col] === EMPTY_CELL) {
+              pendingMove = [fromRow, fromCol, row, col];
+              document.getElementById('move-choice').style.display = 'flex';
+            } else {
+              movePiece(fromRow, fromCol, row, col, false);
+            }
+          }
+        } else {
+          if (board[row][col] === EMPTY_CELL) {
+            movePiece(fromRow, fromCol, row, col, false);
+          }
+        }
+      }
+      selectedPiece = null;
+      renderBoard();
+    };
+
+    const handleTouchStart = (e, row, col) => {
+      e.preventDefault();
+      selectedPiece = [row, col];
+    };
+
+    const handleTouchMove = (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (element && element.classList.contains('cell')) {
+        element.classList.add('hovered');
+      }
+    };
+
+    const handleTouchEnd = (e, row, col) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (element && element.classList.contains('cell')) {
+        const toRow = parseInt(element.dataset.row);
+        const toCol = parseInt(element.dataset.col);
+        if (isValidMove(selectedPiece[0], selectedPiece[1], toRow, toCol)) {
+          handleDrop({ preventDefault: () => {}, dataTransfer: { getData: () => JSON.stringify({ row: selectedPiece[0], col: selectedPiece[1] }) } }, toRow, toCol);
+        }
+      }
+      selectedPiece = null;
+      renderBoard();
+    };
+
+    const isValidMove = (fromRow, fromCol, toRow, toCol) => {
+      return (
+        Math.abs(fromRow - toRow) <= 1.5 && Math.abs(fromCol - toCol) <= 1.5
+      );
+    };
+
+    const handleSelect = (row, col) => {
+      if (selectedPiece) {
+        const [fromRow, fromCol] = selectedPiece;
+        if (isValidMove(fromRow, fromCol, row, col)) {
+          if (shells[fromRow][fromCol]) {
+            if (shells[row][col] === null) {
+              if (board[fromRow][fromCol] !== EMPTY_CELL && board[row][col] === EMPTY_CELL) {
+                pendingMove = [fromRow, fromCol, row, col];
+                document.getElementById('move-choice').style.display = 'flex';
+              } else {
+                movePiece(fromRow, fromCol, row, col, false);
+              }
+            }
+          } else {
+            if (board[row][col] === EMPTY_CELL) {
+              movePiece(fromRow, fromCol, row, col, false);
+            }
+          }
+        }
+        selectedPiece = null;
+      } else if (shells[row][col] || board[row][col]) {
+        selectedPiece = [row, col];
+      }
+      renderBoard();
+    };
+
+    const movePiece = (fromRow, fromCol, toRow, toCol, movePeg) => {
+      let newBoard = board.map((r) => [...r]);
+      let newShells = shells.map((r) => [...r]);
+      
+      if (shells[fromRow][fromCol]) {
+        if (newShells[toRow][toCol] === null) {
+          newShells[toRow][toCol] = newShells[fromRow][fromCol];
+          newShells[fromRow][fromCol] = null;
+          if (movePeg && board[toRow][toCol] === EMPTY_CELL) {
+            newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+            newBoard[fromRow][fromCol] = EMPTY_CELL;
+          }
+        }
+      } else {
+        if (newShells[toRow][toCol] === null && newBoard[toRow][toCol] === EMPTY_CELL) {
+          newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+          newBoard[fromRow][fromCol] = EMPTY_CELL;
+        }
+      }
+
+      board = newBoard;
+      shells = newShells;
+      checkForMatches(newBoard);
+      renderBoard();
+      document.getElementById('move-choice').style.display = 'none';
+      pendingMove = null;
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      updateInfo();
+    };
+
+    const updateInfo = (colorsToRemove = new Set()) => {
+      const info = document.getElementById('info');
+      const player1Info = document.getElementById('player1-colors');
+      const player2Info = document.getElementById('player2-colors');
+      let message = `現在のプレイヤー: プレイヤー${currentPlayer}`;
+      if (colorsToRemove.size > 0) {
+        message += `<br>消えた駒の色: ${Array.from(colorsToRemove).join(', ')}`;
+        if (currentPlayer === 1) {
+          colorsToRemove.forEach(color => player1Colors.add(color));
+        } else {
+          colorsToRemove.forEach(color => player2Colors.add(color));
+        }
+      }
+      player1Info.innerHTML = `消した色: ${Array.from(player1Colors).join(', ')}`;
+      player2Info.innerHTML = `消した色: ${Array.from(player2Colors).join(', ')}`;
+      info.innerHTML = message;
+    };
+
+    const checkForMatches = (newBoard) => {
+      let updatedBoard = newBoard.map(row => [...row]);
+      let colorsToRemove = new Set();
+
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        for (let j = 0; j < BOARD_SIZE; j++) {
+          let color = newBoard[i][j];
+          if (color && COLORS.includes(color)) {
+            // 横のチェック
+            if (j <= BOARD_SIZE - 3 && color === newBoard[i][j + 1] && color === newBoard[i][j + 2]) {
+              colorsToRemove.add(color);
+            }
+            // 縦のチェック
+            if (i <= BOARD_SIZE - 3 && color === newBoard[i + 1][j] && color === newBoard[i + 2][j]) {
+              colorsToRemove.add(color);
+            }
+            // 斜めチェック（右下）
+            if (i <= BOARD_SIZE - 3 && j <= BOARD_SIZE - 3 && color === newBoard[i + 1][j + 1] && color === newBoard[i + 2][j + 2]) {
+              colorsToRemove.add(color);
+            }
+            // 斜めチェック（左下）
+            if (i <= BOARD_SIZE - 3 && j >= 2 && color === newBoard[i + 1][j - 1] && color === newBoard[i + 2][j - 2]) {
+              colorsToRemove.add(color);
+            }
+          }
+        }
+      }
+
+      if (colorsToRemove.size > 0) {
+        for (let i = 0; i < BOARD_SIZE; i++) {
+          for (let j = 0; j < BOARD_SIZE; j++) {
+            if (colorsToRemove.has(newBoard[i][j])) {
+              updatedBoard[i][j] = EMPTY_CELL;
+            }
+          }
+        }
+        board = updatedBoard; // 盤面を更新
+        renderBoard();
+        updateInfo(colorsToRemove);
+        checkWinCondition();
+      }
+    };
+
+    const checkWinCondition = () => {
+      if (player1Colors.size >= 2) {
+        alert('プレイヤー1の勝ちです！');
+        resetGame();
+      } else if (player2Colors.size >= 2) {
+        alert('プレイヤー2の勝ちです！');
+        resetGame();
+      }
+    };
+
+    const resetGame = () => {
+      board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY_CELL));
+      shells = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+      selectedPiece = null;
+      pendingMove = null;
+      currentPlayer = 1;
+      player1Colors = new Set();
+      player2Colors = new Set();
+      initializeBoard();
+    };
+
+    document.getElementById('move-yes').addEventListener('click', () => {
+      if (pendingMove) {
+        movePiece(...pendingMove, true);
+      }
+    });
+
+    document.getElementById('move-no').addEventListener('click', () => {
+      if (pendingMove) {
+        movePiece(...pendingMove, false);
+      }
+    });
+
+    initializeBoard();
+  </script>
+</body>
+</html>
