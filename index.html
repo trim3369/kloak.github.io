@@ -3,12 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>HTMLファイル選択ページ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>HTMLファイルを選択してください</h1>
-    <ul>
-        <li><a href="easy.html">kloak.github.io/easy.html</a></li>
-        <li><a href="normal.html">kloak.github.io/normal.html</a></li>
-    </ul>
+    <div class="button-container">
+        <a href="easy.html" class="button">Easyモード</a>
+        <a href="normal.html" class="button">Normalモード</a>
+    </div>
 </body>
 </html>
