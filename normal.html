@@ -401,7 +401,8 @@
 
     const rotateBoard = () => {
       rotation = (rotation + 90) % 360;
-      document.getElementById('game-board').style.transform = `rotate(${rotation}deg)`;
+      const gameBoard = document.getElementById('game-board');
+      gameBoard.style.transform = `rotate(${rotation}deg)`;
     };
 
     document.getElementById('move-yes').addEventListener('click', () => {
