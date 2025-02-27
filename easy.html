@@ -11,7 +11,7 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      background: url('https://www.transparenttextures.com/patterns/wood-pattern.png'); /* 木目調の背景 */
       font-family: Arial, sans-serif;
       margin: 0;
     }
@@ -40,6 +40,7 @@
       gap: 5px;
       width: 100%;
       max-width: 300px;
+      transition: transform 0.5s;
     }
     .cell {
       width: 100%;
@@ -53,13 +54,13 @@
       background-color: #fff;
       transition: background-color 0.3s, transform 0.3s;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 50%; /* マスの形を丸に */
     }
     .cell div {
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* 駒をマスのちょうど真ん中に表示 */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -86,7 +87,7 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.3s;
-      border-radius: 30px;
+      border-radius: 5px;
     }
     .move-choice #move-yes {
       background-color: #28a745;
@@ -109,6 +110,22 @@
       font-size: 1.2rem;
       text-align: center;
     }
+    .rotate-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      border-radius: 5px;
+    }
+    .rotate-button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
     @media (max-width: 600px) {
       .board {
         max-width: 90vw;
@@ -129,10 +146,15 @@
       .info {
         font-size: 1rem;
       }
+      .rotate-button {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
+  <button class="rotate-button" onclick="rotateBoard()">盤を回転</button>
   <div id="player1-info" class="player-info">
     <h4>先攻</h4>
     <div id="player1-colors"></div>
@@ -163,6 +185,7 @@
     let currentPlayer = 1;
     let player1Colors = new Set();
     let player2Colors = new Set();
+    let rotation = 0;
 
     const initializeBoard = () => {
       let availablePositions = [];
@@ -374,6 +397,11 @@
       player1Colors = new Set();
       player2Colors = new Set();
       initializeBoard();
+    };
+
+    const rotateBoard = () => {
+      rotation = (rotation + 90) % 360;
+      document.getElementById('game-board').style.transform = `rotate(${rotation}deg)`;
     };
 
     document.getElementById('move-yes').addEventListener('click', () => {
