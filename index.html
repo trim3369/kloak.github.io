@@ -7,11 +7,17 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            text-align: center;
-            padding: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         h1 {
             color: #333;
+        }
+        .container {
+            text-align: center;
         }
         .button-container {
             margin-top: 20px;
@@ -23,11 +29,11 @@
             background-color: #4CAF50;
             border: none;
             color: white;
-            padding: 20px 40px;
+            padding: 30px 60px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 20px;
+            font-size: 30px;
             margin: 15px 0;
             cursor: pointer;
             border-radius: 8px;
@@ -39,9 +45,6 @@
             background-color: #45a049;
         }
         @media (max-width: 600px) {
-            body {
-                padding: 20px;
-            }
             .button {
                 width: 100%;
                 padding: 20px 0;
@@ -51,10 +54,12 @@
     </style>
 </head>
 <body>
-    <h1>HTMLファイルを選択してください</h1>
-    <div class="button-container">
-        <a href="easy.html" class="button">Easyモード</a>
-        <a href="normal.html" class="button">Normalモード</a>
+    <div class="container">
+        <h1>HTMLファイルを選択してください</h1>
+        <div class="button-container">
+            <a href="easy.html" class="button">Easyモード</a>
+            <a href="normal.html" class="button">Normalモード</a>
+        </div>
     </div>
 </body>
 </html>
