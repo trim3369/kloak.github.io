@@ -134,14 +134,14 @@
 </head>
 <body>
   <div id="player1-info" class="player-info">
-    <h4>プレイヤー1</h4>
+    <h4>先攻</h4>
     <div id="player1-colors"></div>
   </div>
   <div class="container">
     <div id="game-board" class="board"></div>
   </div>
   <div id="player2-info" class="player-info">
-    <h4>プレイヤー2</h4>
+    <h4>後攻</h4>
     <div id="player2-colors"></div>
   </div>
   <div id="move-choice" class="move-choice" style="display: none;">
@@ -337,30 +337,30 @@
       updateInfo();
     };
 
-    const updateInfo = (colorsToRemove = new Set()) => {
-      const info = document.getElementById('info');
-      const player1Info = document.getElementById('player1-colors');
-      const player2Info = document.getElementById('player2-colors');
-      let message = `現在のプレイヤー: プレイヤー${currentPlayer}`;
-      if (colorsToRemove.size > 0) {
-        message += `<br>消えた駒の色: ${Array.from(colorsToRemove).join(', ')}`;
-        if (currentPlayer === 1) {
-          colorsToRemove.forEach(color => player1Colors.add(color));
-        } else {
-          colorsToRemove.forEach(color => player2Colors.add(color));
-        }
-      }
-      player1Info.innerHTML = `消した色: ${Array.from(player1Colors).join(', ')}`;
-      player2Info.innerHTML = `消した色: ${Array.from(player2Colors).join(', ')}`;
-      info.innerHTML = message;
-    };
+const updateInfo = (colorsToRemove = new Set()) => {
+  const info = document.getElementById('info');
+  const player1Info = document.getElementById('player1-colors');
+  const player2Info = document.getElementById('player2-colors');
+  let message = `現在のプレイヤー: ${currentPlayer === 1 ? '先攻' : '後攻'}`;
+  if (colorsToRemove.size > 0) {
+    message += `<br>消えた駒の色: ${Array.from(colorsToRemove).join(', ')}`;
+    if (currentPlayer === 1) {
+      colorsToRemove.forEach(color => player1Colors.add(color));
+    } else {
+      colorsToRemove.forEach(color => player2Colors.add(color));
+    }
+  }
+  player1Info.innerHTML = `消した色: ${Array.from(player1Colors).join(', ')}`;
+  player2Info.innerHTML = `消した色: ${Array.from(player2Colors).join(', ')}`;
+  info.innerHTML = message;
+};
 
     const checkWinCondition = () => {
       if (player1Colors.size >= 2) {
-        alert('プレイヤー1の勝ちです！');
+        alert('先攻の勝ちです！');
         resetGame();
       } else if (player2Colors.size >= 2) {
-        alert('プレイヤー2の勝ちです！');
+        alert('後攻の勝ちです！');
         resetGame();
       }
     };
