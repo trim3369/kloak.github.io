@@ -207,6 +207,7 @@
       if (row <= BOARD_SIZE - 3 && col <= BOARD_SIZE - 3 && board[row + 1][col + 1] === color && board[row + 2][col + 2] === color) return false;
       if (row >= 1 && row <= BOARD_SIZE - 2 && col >= 1 && col <= BOARD_SIZE - 2 && board[row - 1][col - 1] === color && board[row + 1][col + 1] === color) return false;
       // 斜めチェック（左下）
+      if (row >= 2 && col <= BOARD_SIZE - 3 && board[row - 1][col + 1] === color && board[row - 2][col + 2] === color) return
       if (row >= 1 && row <= BOARD_SIZE - 2 && col >= 1 && col <= BOARD_SIZE - 2 && board[row - 1][col + 1] === color && board[row + 1][col - 1] === color) return false;
       return true;
     };
@@ -271,37 +272,37 @@
       renderBoard();
     };
 
-const handleTouchStart = (e, row, col) => {
-  e.preventDefault();
-  selectedPiece = [row, col];
-  console.log(`Touch start at (${row}, ${col})`);
-};
+    const handleTouchStart = (e, row, col) => {
+      e.preventDefault();
+      selectedPiece = [row, col];
+      console.log(`Touch start at (${row}, ${col})`);
+    };
 
-const handleTouchMove = (e) => {
-  e.preventDefault();
-  const touch = e.touches[0];
-  const element = document.elementFromPoint(touch.clientX, touch.clientY);
-  if (element && element.classList.contains('cell')) {
-    element.classList.add('hovered');
-  }
-  console.log(`Touch move at (${touch.clientX}, ${touch.clientY})`);
-};
+    const handleTouchMove = (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (element && element.classList.contains('cell')) {
+        element.classList.add('hovered');
+      }
+      console.log(`Touch move at (${touch.clientX}, ${touch.clientY})`);
+    };
 
-const handleTouchEnd = (e) => {
-  e.preventDefault();
-  const touch = e.changedTouches[0];
-  const element = document.elementFromPoint(touch.clientX, touch.clientY);
-  if (element && element.classList.contains('cell')) {
-    const toRow = parseInt(element.dataset.row);
-    const toCol = parseInt(element.dataset.col);
-    if (isValidMove(selectedPiece[0], selectedPiece[1], toRow, toCol)) {
-      handleDrop({ preventDefault: () => {}, dataTransfer: { getData: () => JSON.stringify({ row: selectedPiece[0], col: selectedPiece[1] }) } }, toRow, toCol);
-    }
-  }
-  selectedPiece = null;
-  renderBoard();
-  console.log(`Touch end at (${toRow}, ${toCol})`);
-};
+    const handleTouchEnd = (e) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (element && element.classList.contains('cell')) {
+        const toRow = parseInt(element.dataset.row);
+        const toCol = parseInt(element.dataset.col);
+        if (isValidMove(selectedPiece[0], selectedPiece[1], toRow, toCol)) {
+          handleDrop({ preventDefault: () => {}, dataTransfer: { getData: () => JSON.stringify({ row: selectedPiece[0], col: selectedPiece[1] }) } }, toRow, toCol);
+        }
+      }
+      selectedPiece = null;
+      renderBoard();
+      console.log(`Touch end at (${toRow}, ${toCol})`);
+    };
 
     const isValidMove = (fromRow, fromCol, toRow, toCol) => {
       return (
