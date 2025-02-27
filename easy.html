@@ -50,7 +50,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 64px;
+      font-size: 32px;
       background-color: #fff;
       transition: background-color 0.3s, transform 0.3s;
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -208,7 +208,7 @@
           }
         }
       });
-      for (let i = 1; i < 4; i++) { /* ここを修正しました */
+      for (let i = 0; i < BOARD_SIZE; i++) {
         shells[0][i] = SHELL_ICON;
         shells[4][i] = SHELL_ICON;
       }
@@ -399,17 +399,11 @@
       initializeBoard();
     };
 
-const rotateBoard = () => {
-  rotation = (rotation + 90) % 360;
-  const gameBoard = document.getElementById('game-board');
-  gameBoard.style.transform = `rotate(${rotation}deg)`;
-
-  // 各駒の向きを逆回転させて常に上向きにする
-  const cells = document.querySelectorAll('.cell div');
-  cells.forEach(cell => {
-    cell.style.transform = `rotate(${-rotation}deg) translate(-50%, -50%)`;
-  });
-};
+    const rotateBoard = () => {
+      rotation = (rotation + 90) % 360;
+      const gameBoard = document.getElementById('game-board');
+      gameBoard.style.transform = `rotate(${rotation}deg)`;
+    };
 
     document.getElementById('move-yes').addEventListener('click', () => {
       if (pendingMove) {
