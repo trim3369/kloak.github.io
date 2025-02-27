@@ -189,7 +189,6 @@
         shells[0][i] = SHELL_ICON;
         shells[4][i] = SHELL_ICON;
       }
-      document.getElementById('game-board').innerHTML = ''; // 追加
       renderBoard();
       updateInfo();
     };
@@ -208,8 +207,6 @@
       if (row <= BOARD_SIZE - 3 && col <= BOARD_SIZE - 3 && board[row + 1][col + 1] === color && board[row + 2][col + 2] === color) return false;
       if (row >= 1 && row <= BOARD_SIZE - 2 && col >= 1 && col <= BOARD_SIZE - 2 && board[row - 1][col - 1] === color && board[row + 1][col + 1] === color) return false;
       // 斜めチェック（左下）
-      if (row >= 2 && col <= BOARD_SIZE - 3 && board[row - 1][col + 1] === color && board[row - 2][col + 2] === color) return false;
-      if (row <= BOARD_SIZE - 3 && col >= 2 && board[row + 1][col - 1] === color && board[row + 2][col - 2] === color) return false;
       if (row >= 1 && row <= BOARD_SIZE - 2 && col >= 1 && col <= BOARD_SIZE - 2 && board[row - 1][col + 1] === color && board[row + 1][col - 1] === color) return false;
       return true;
     };
@@ -226,11 +223,11 @@
           cell.appendChild(cellContent);
           cell.draggable = true;
           cell.addEventListener('dragstart', (e) => handleDragStart(e, row, col));
-          cell.addEventListener('dragover', (e) => handleDragOver(e));
+          cell.addEventListener('dragover', handleDragOver);
           cell.addEventListener('drop', (e) => handleDrop(e, row, col));
           cell.addEventListener('click', () => handleSelect(row, col));
           cell.addEventListener('touchstart', (e) => handleTouchStart(e, row, col));
-          cell.addEventListener('touchmove', (e) => handleTouchMove(e));
+          cell.addEventListener('touchmove', handleTouchMove);
           cell.addEventListener('touchend', (e) => handleTouchEnd(e, row, col));
           cell.dataset.row = row;
           cell.dataset.col = col;
@@ -277,6 +274,7 @@
     const handleTouchStart = (e, row, col) => {
       e.preventDefault();
       selectedPiece = [row, col];
+      console.log(`Touch start at (${row}, ${col})`);
     };
 
     const handleTouchMove = (e) => {
@@ -286,9 +284,10 @@
       if (element && element.classList.contains('cell')) {
         element.classList.add('hovered');
       }
+      console.log(`Touch move at (${touch.clientX}, ${touch.clientY})`);
     };
 
-    const handleTouchEnd = (e, row, col) => {
+    const handleTouchEnd = (e) => {
       e.preventDefault();
       const touch = e.changedTouches[0];
       const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -301,6 +300,7 @@
       }
       selectedPiece = null;
       renderBoard();
+      console.log(`Touch end at (${toRow}, ${toCol})`);
     };
 
     const isValidMove = (fromRow, fromCol, toRow, toCol) => {
